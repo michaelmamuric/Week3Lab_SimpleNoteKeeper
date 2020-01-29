@@ -7,6 +7,8 @@ package servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.*;
+import domain.Note;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +32,7 @@ public class NoteServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
     }
-
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -45,19 +47,36 @@ public class NoteServlet extends HttpServlet {
             throws ServletException, IOException {
         //processRequest(request, response);
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet NoteServlet</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet NoteServlet at " + request.getContextPath() + "</h1>");
-            out.println("<h2>GET</h2>");
-            out.println("</body>");
-            out.println("</html>");
+        
+        String edit = request.getParameter("edit");
+        
+        if(edit != null) {
+            System.out.println("Edit is not null");
+            getServletContext().getRequestDispatcher("/WEB-INF/editnote.jsp").forward(request, response);
         }
+        else {
+            String path, title = "", contents = "";
+            
+            // Get note.txt path
+            path = getServletContext().getRealPath("/WEB-INF/note.txt");
+            BufferedReader br = new BufferedReader(new FileReader(new File(path)));
+            
+            // If BufferedReader is ready, read file
+            if(br.ready()) {
+                title = br.readLine();
+                contents = br.readLine();
+            }
+            
+            // Create New Note object
+            Note readNote = new Note(title, contents);
+            request.setAttribute("note", readNote);
+                       
+            getServletContext().getRequestDispatcher("/WEB-INF/viewnote.jsp").forward(request, response);
+            
+            // Close buffered reader
+            br.close();
+        }
+        
     }
 
     /**
@@ -73,19 +92,7 @@ public class NoteServlet extends HttpServlet {
             throws ServletException, IOException {
         //processRequest(request, response);
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet NoteServlet</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet NoteServlet at " + request.getContextPath() + "</h1>");
-            out.println("<h2>POST</h2>");
-            out.println("</body>");
-            out.println("</html>");
-        }
+        getServletContext().getRequestDispatcher("/WEB-INF/viewnote.jsp").forward(request, response);    
     }
 
     /**
